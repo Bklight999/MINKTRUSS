@@ -2,7 +2,7 @@
 This repository contains the codebase for the following manuscript: 
 ***Efficient Minimum k-Truss Search: A Decomposition-based Approach***
 
-# Dataset Preparation
+## Dataset Preparation
 The dataset dataset.zip can be unzipped directly.
 
 | **Dataset** | **$n$**   | **$m$**    | **$d_{avg}$** | **$k_{max}$** |
@@ -25,14 +25,14 @@ Other datasets can be downloaded from the following links:
  - **SNAP**: http://snap.stanford.edu
  - **Networkrepository**: https://networkrepository.com/
 
-# Compile the code
+## Compile the code
 
 ```cpp
 g++ main.cpp -o minktruss
 ```
 This will generate an executable file **minktruss**
 
-# Run the code
+## Run the code
 
 ```cpp
 ./minktruss $alogirthm $input_file_path $output_file_path $k_lower $k_upper $query_id / the value of c (optional)
@@ -46,16 +46,16 @@ Note that, the algorithms mentioned in our paper are transfered to a series of n
  - 4: MINKTRUSS-ENUM without MINKTRUSS-HEURISTIC
 
 **For example:**
- if you want to run *MINKTRUSS--DSA* on *RGG* from *k=5 to k=15* and *c=10*, you can use the command:
+ if you want to run *MINKTRUSS-DSA* on *RGG* from *k=10 to k=15*, you can use the command:
 
 ```cpp
-./minktruss 0 path/to/RGG.txt path/to/your_output_file 5 15 10
+./minktruss 0 path/to/RGG.txt path/to/your_output_file 10 15
 ```
 
- if you want to run *MINKTRUSS--DSA* on *Skitter* with *k=5* and *query_id= 537*, you can use the command:
+ if you want to run *MINKTRUSS-DSA* on *Epinions* with *k=5* and *c= 100*, you can use the command:
 
 ```cpp
-./minktruss 0 path/to/Skitter.txt path/to/your_output_file 5 5 537
+./minktruss 1 path/to/Epinions.txt path/to/your_output_file 5 5 100
 ```
-# Long-term Preservation
+## Long-term Preservation
 This repository is maintained by Qifan Zhang (bklight999@gmail.com).
