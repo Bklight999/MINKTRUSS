@@ -204,43 +204,8 @@ int main(int argc, char* argv[])
         outfile.close();
     }
 
+    
     if (def_alg == 4)
-    {
-        outfile.open(out_file_name);
-
-        for (int i = 0; i < fileset.size(); i++)
-        {
-            for (int turn = 0; turn < kset.size(); turn++)
-            {
-                K = kset[turn];
-                string filename = fileset[i];
-
-                clock_t start, finish;
-                start = clock();
-                GraphE* graphe = new GraphE(filename.c_str(), K);
-
-                bool timeflag = true;
-
-                int cnt = graphe->find_min_k_truss_del(start, timeflag);
-
-                if (!timeflag) printf("Time exceeds\n");
-                else
-                {
-                    finish = clock();
-                    printf("The running time is: %lf s\n", (double)(finish - start) / CLOCKS_PER_SEC);
-                }
-
-                if (timeflag)
-                    outfile << filename.substr(23) << " " << "BNB" << " " << "K = " << K << " " << (double)(finish - start) / CLOCKS_PER_SEC << "s" << " " << "size is" << " " << cnt << endl;
-                else
-                    outfile << filename.substr(23) << " " << "K = " << K << " " << "size is" << " " << "Time exceeds" << endl;
-            }
-            outfile << endl << endl;
-        }
-        outfile.close();
-    }
-
-    if (def_alg == 5)
     {
         outfile.open(out_file_name);
 
