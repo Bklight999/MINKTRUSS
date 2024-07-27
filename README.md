@@ -2,6 +2,12 @@
 This repository contains the codebase for the following manuscript: 
 ***Efficient Minimum k-Truss Search: A Decomposition-based Approach***
 
+# Dataset Preparation
+The dataset dataset.zip for benchmarking can be unzipped directly. Other datasets can be downloaded from the following links:
+
+ - **SNAP**: http://snap.stanford.edu
+ - **Networkrepository**: https://networkrepository.com/
+
 # Compile the code
 
 ```cpp
@@ -34,3 +40,4 @@ Note that, the algorithms mentioned in our paper are transfered to a series of n
 ```cpp
 ./minktruss 0 path/to/your_input_file path/to/your_output_file 5 5 537
 ```
+
