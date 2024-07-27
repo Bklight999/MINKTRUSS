@@ -32,13 +32,13 @@ Note that, the algorithms mentioned in our paper are transfered to a series of n
  if you want to run *MINKTRUSS--DSA* on *RGG* from *k=5 to k=15* and *c=10*, you can use the command:
 
 ```cpp
-./minktruss 0 path/to/your_input_file path/to/your_output_file 5 15 10
+./minktruss 0 path/to/RGG.txt path/to/your_output_file 5 15 10
 ```
 
  if you want to run *MINKTRUSS--DSA* on *Skitter* with *k=5* and *query_id= 537*, you can use the command:
 
 ```cpp
-./minktruss 0 path/to/your_input_file path/to/your_output_file 5 5 537
+./minktruss 0 path/to/Skitter.txt path/to/your_output_file 5 5 537
 ```
 # Long-term Preservation
 This repository is maintained by Qifan Zhang (bklight999@gmail.com).
