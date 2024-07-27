@@ -18,7 +18,7 @@ This will generate an executable file **minktruss**
 # Run the code
 
 ```cpp
-./minktruss $alogirthm $input_file_path $output_file_path $k_lower $k_upper $query_id / the value of c (optional)
+./minktruss $alogirthm $input_file_path $output_file_path $k_lower $k_upper $query_id / the_value_of_c (optional)
 ```
 Note that, the algorithms mentioned in our paper are transfered to a series of numbers:
 
