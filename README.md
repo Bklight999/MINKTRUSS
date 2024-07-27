@@ -1,6 +1,6 @@
 # MINKTRUSS
 This repository contains the codebase for the following manuscript: 
-*** Efficient Minimum k-Truss Search: A Decomposition-based Approach </span> ***
+***Efficient Minimum k-Truss Search: A Decomposition-based Approach***
 
 # Compile the code
 
@@ -27,4 +27,10 @@ Note that, the algorithms mentioned in our paper are transfered to a series of n
 
 ```cpp
 ./minktruss 0 path/to/your_input_file path/to/your_output_file 5 15 10
+```
 
+ if you want to run *MINKTRUSS--DSA* on *Skitter* with *k=5* and *query_id= 537*, you can use the command:
+
+```cpp
+./minktruss 0 path/to/your_input_file path/to/your_output_file 5 5 537
+```
