@@ -1439,22 +1439,11 @@ private:
 			{
 				printf("\n\n\noptimal solution = %d\n\n\n", svex.size());
 				printf("time = %lf\n", time);
-				//exit(1000);
 				printf("\n");
 				flag = true;
 				return true;
 			}
 		}
-
-		//if (svex.size() >= LB)
-		//{
-		//	printf("\n\n\noptimal solution = %d\n\n\n", svex.size());
-		//	printf("time = %lf\n", time);
-		//	//exit(1000);
-		//	printf("\n");
-		//	flag = true;
-		//	return true;
-		//}
 
 		int curS = nodes.size() + svex.size();
 
@@ -1465,14 +1454,9 @@ private:
 				curSS++;
 		}
 		assert(curS == curSS);
-		//printf("curS = %d\n", curS);
-		/*int curS = 0;*/
-		//for (int i = 0; i < n; i++)
-		//	if (!deleted_vertex[i]) curS++;
 
 		if (curS < LB)
 		{
-			//printf("curS = %d < LB = %d\n", curS, LB);
 			return false;
 		}
 
@@ -1513,15 +1497,6 @@ private:
 				del.push_back(i);
 		}
 
-
-		/*for (auto u : svex)
-		{
-			cal_notadj_v(u);
-			if (notadj_v[u] >= S + 2)
-				return false;
-		}*/
-
-		
 		if (del.size()) {
 
 			for (int x = 0; x < del.size(); x++)
@@ -1543,66 +1518,21 @@ private:
 		int max_v = -1, max_ins_degree = m;
 		for (auto x : nodes)
 		{
-			//if (deleted_vertex[x]) continue;
 			int cnt = 0;
-			//����x��S�ڵĶ���
 			for (auto u : svex)
 			{
 				if (check_neighbour_inS(u, x))
 					cnt++;
 			}
-			//�ҵ���С�Ķ����͸���
 			if (cnt < max_ins_degree)
 			{
 				max_ins_degree = cnt;
 				max_v = x;
 			}
-			//printf("v = %d and degree = %d\n", x, cnt);
+
 		}
 		if (max_v == -1) return false;
 
-
-		//����֧�ֶȵ�ѡ�����
-		/*
-		int max_v = -1, max_ins_support = -1;
-		for (auto x : nodes)
-		{
-			if (deleted_vertex[x]) continue;
-			int cnt = 0;
-			for (auto e : sedge)
-			{
-				if (check_common_neighbour(e, x))
-					cnt++;
-			}
-			if (cnt > max_ins_support)
-			{
-				max_ins_support = cnt;
-				max_v = x;
-			}
-		}
-		*/
-
-		//��֧�ֶȵ͵Ŀ�ʼѡ��
-		/*
-		int max_v = -1, max_ins_support = m;
-		for (auto x : nodes)
-		{
-			if (deleted_vertex[x]) continue;
-			int cnt = 0;
-			for (auto e : sedge)
-			{
-				if (check_common_neighbour(e, x))
-					cnt++;
-			}
-			if (cnt < max_ins_support)
-			{
-				max_ins_support = cnt;
-				max_v = x;
-			}
-		}
-		*/
-		
-		//�ѽڵ�Ӵ�ѡ��ɾ��
 		nodes.erase(remove(nodes.begin(), nodes.end(), max_v), nodes.end());
 
 
@@ -1610,75 +1540,17 @@ private:
 		if (canadd(current_node))
 		{
 			addtoS(current_node);
-			//printf("Add %d and current solution size is %d\n", current_node, svex.size());
 			ret |= enumeration(flag, start, timeflag);
 			delfrS(current_node);
 		}
 
 		delfrD_vertex(__LINE__, current_node);
-		//printf("Del %d and current solution size is %d\n", current_node, svex.size());
-		//for (int e = 0; e < (m >> 1); e++)
-		//{
-		//	printf("%d-%d tri_cnt = %d ", edge_list[e << 1], edge_list[(e << 1) + 1], tri_cnt[e]);
-		//}
-		//cout << endl;
 		ret |= enumeration(flag, start, timeflag);
 		addtoD_vertex(__LINE__, current_node);
 
-		//�ѽڵ�ӻ�����������֧���ܻ��ã�
 		nodes.push_back(max_v);
 
 		return ret;
-
-		//for (int i = v + 1; i < n; i++)
-		//{
-		//	int current_node = nodes[i];
-		//	if (!deleted_vertex[current_node] && canadd(current_node))
-		//	{
-		//		addtoS(current_node);
-		//		printf("Add %d and current solution size is %d\n", current_node, svex.size());
-		//		ret |= enumeration(i, flag, start, timeflag);
-		//		delfrS(current_node);
-		//	}
-		//}
-		// 
-
-		//if (!deleted_vertex[current_node])
-		//{
-		//	/*for (int i = 0; i < sedge.size(); i++)
-		//	{
-		//		int e = sedge[i];
-		//		printf("edge %d = %d-%d ", i, edge_list[e << 1], edge_list[(e << 1) + 1]);
-		//		printf("\n");
-		//	}*/
-		//	//printf("Try to add %d\n", current_node);
-		//	if (canadd(current_node))
-		//	{
-		//		addtoS(current_node);
-		//		//printf("Add %d and current solution size is %d\n", current_node, svex.size());
-		//		ret |= enumeration(v + 1, flag, start, timeflag);
-		//		delfrS(current_node);
-		//	}
-
-		//	delfrD_vertex(__LINE__, current_node);
-		//	//printf("Del %d and current solution size is %d\n", current_node, svex.size());
-		//	ret |= enumeration(v + 1, flag, start, timeflag);
-		//	addtoD_vertex(__LINE__, current_node);
-		//}
-
-		/*for (int i = v + 1; i < n; i++)
-		{
-			int current_node = nodes[i];
-			if (!deleted_vertex[i] && canadd(i))
-			{
-				addtoS(i);
-				ret |= enumeration(i, flag, start, timeflag);
-				delfrS(i);
-				delfrD_vertex(__LINE__, i);
-				ret |= enumeration(i, flag, start, timeflag);
-				addtoD_vertex(__LINE__, i);
-			}
-		}*/
 
 		//return ret;
 	}
