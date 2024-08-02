@@ -44,7 +44,7 @@ int main(int argc, char* argv[])
 
 
     string dataset = argv[2];
-    string filename = "/home/zqf/dataset/" + dataset + ".txt";
+    string filename = "/path/to/" + dataset + ".txt";
     fileset.push_back(filename); 
 
 
