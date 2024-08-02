@@ -22,7 +22,7 @@ vector<std::string> readtxt_name(string file)
 
     while (getline(infile, str))
     {
-        str.pop_back();//getline reads line breaks, whereas file names in linux will report an error even if there is just one extra line break
+        str.pop_back();
         if (str == "EOF")break;
         txt_name.push_back(str);
 
@@ -36,29 +36,25 @@ int K;
 vector<string> fileset;
 
 
-int main(int argc, char* argv[]) 
+int main(int argc, char* argv[])  
 {
     vector<int> kset;
-    int k_l = stoi(argv[4]);
-    int k_u = stoi(argv[5]);
-
-    for (int i = k_l; i <= k_u; i += 1)
+    for (int i = stoi(argv[4]); i <= stoi(argv[5]); i += 1)
         kset.push_back(i);
 
-    string filename = argv[2];// e.g. path/to/Skitter.txt"
-    fileset.clear();
-    fileset.push_back(filename);
 
-    int def_alg = stoi(argv[1]); // 0:DSA 1:DSA-topc 2:DSA-query_search 3:ENUM+Heu_Add 4:ENUM+Heu_Del 5:ENUM  
+    string dataset = argv[2];
+    string filename = "/home/zqf/dataset/" + dataset + ".txt";
+    fileset.push_back(filename); 
+
+
+    int def_alg = stoi(argv[1]); // 0:DSA 1:DSA-topc 2:DSA-query_search 3:MTEnum 4:MTEnum \ MTHeur
 
     ofstream outfile;
-    string out_file_name = argv[3]; // e.g. path/to/output.txt"
+    outfile.open(argv[3]);
 
     if (def_alg == 0)
     {
-       outfile.open(out_file_name);
-        //outfile.open(argv[2]);
-
         for (int i = 0; i < fileset.size(); i++)
         {
             for (int turn = 0; turn < kset.size(); turn++)
@@ -72,7 +68,7 @@ int main(int argc, char* argv[])
 
                 bool timeflag = true;
                 start = clock();
-                int cnt = graph->find_min_k_truss(start, timeflag, "BKEPLEX");//IE_ENUM BNB BKEPLEX
+                int cnt = graph->find_min_k_truss(start, timeflag, "IE_ENUM");//IE_ENUM
                 if (!timeflag) printf("Time exceeds!\n");
                 else
                 {
@@ -93,8 +89,7 @@ int main(int argc, char* argv[])
 
     if (def_alg == 1)
     {
-        outfile.open(out_file_name);
-        int c = stoi(argv[6]); 
+        int c = stoi(argv[6]);
 
         for (int i = 0; i < fileset.size(); i++)
         {
@@ -108,7 +103,7 @@ int main(int argc, char* argv[])
                 Graph* graph = new Graph(filename.c_str(), K);  
 
                 bool timeflag = true;
-                int cnt = graph->find_c_min_k_truss("IE_ENUM", start, timeflag, c);//IE_ENUM
+                int cnt = graph->find_c_min_k_truss("IE_ENUM", start, timeflag, c);
 
                 if (!timeflag) printf("Time exceeds\n");
                 else
@@ -129,7 +124,6 @@ int main(int argc, char* argv[])
 
     if (def_alg == 2)
     {
-        outfile.open(out_file_name);
         int q_vertex = stoi(argv[6]);
 
         for (int i = 0; i < fileset.size(); i++)
@@ -146,7 +140,7 @@ int main(int argc, char* argv[])
                 bool timeflag = true;
 
                 //srand((unsigned)time(NULL));
-                int cnt = graph->find_min_k_truss_query(start, timeflag, "BNB", q_vertex);
+                int cnt = graph->find_min_k_truss_query(start, timeflag, "IE_ENUM", q_vertex);
                 if (!timeflag) printf("Time exceeds\n");
                 else
                 {
@@ -170,7 +164,6 @@ int main(int argc, char* argv[])
 
     if (def_alg == 3)
     {
-        outfile.open(out_file_name);
 
         for (int i = 0; i < fileset.size(); i++)
         {
@@ -204,11 +197,8 @@ int main(int argc, char* argv[])
         outfile.close();
     }
 
-    
     if (def_alg == 4)
     {
-        outfile.open(out_file_name);
-
         for (int i = 0; i < fileset.size(); i++)
         {
             for (int turn = 0; turn < kset.size(); turn++)
@@ -240,6 +230,8 @@ int main(int argc, char* argv[])
         }
         outfile.close();
     }
+
+ 
 
     return 0;
 }

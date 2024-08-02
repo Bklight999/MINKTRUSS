@@ -1,13 +1,11 @@
 ﻿#pragma once
-#ifndef _BKEPLX_H_
-#define _BKEPLX_H_
+#ifndef _BNBPLEX_H_
+#define _BNBPLEX_H_
 
 #include"Utility.h"
 #include"Timer.h"
 
-#endif
-
-class BKEPLEX
+class BnBplex
 {
 private:
 	int n;
@@ -49,7 +47,7 @@ private:
 	int* deleted_flag;
 
 public:
-	BKEPLEX(int _S, int lb)
+	BnBplex(int _S, int lb)
 	{
 		pstart = nullptr;
 		pend = nullptr;
@@ -73,7 +71,7 @@ public:
 		LB = lb;
 		s_size = 0;
 	}
-	~BKEPLEX()
+	~BnBplex()
 	{
 		if (deleted_flag != nullptr) {
 			delete[] deleted_flag;
@@ -393,37 +391,170 @@ public:
 
 	}
 
-	bool check_adj_vertex(int u, int v)
+	void cal_notadj(int e)
 	{
-		if(u==v)
-			return false;
-		for (int i = pstart[u]; i < pend[u]; i++)
+		notadj_e[e] = 0;
+		for (auto v : svex)
 		{
-			int e = edgelist_pointer[i];
-			if (!deleted_vertex[edges[i]] && edges[i] == v && !deleted_edges[e]) return true;//!deleted_edges[e]&& 
+			if (!check_common_neighbour(v, e))
+				notadj_e[e]++;
 		}
-		return false;
 	}
 
-	int cal_notadj_v(int v)
+
+	void delfrD_vertex(int line, int u)
 	{
-		int cnt = 0;
-		for (auto u : svex)
-			if (!check_adj_vertex(u, v)&&u!=v) cnt++;
-		return cnt;
+		if (deleted_vertex[u])
+		{
+			printf("%d has been deleted\n", u);
+			printf("������õ������: %d\n", line);
+		}
+		//if (n == 31) printf("del %d\n", u);
+		assert(!deleted_vertex[u]);
+		deleted_vertex[u] = 1;
+		del_v.push_back(u);
+
+		int* exist = new int[n];
+		memset(exist, 0, sizeof(int) * n);
+		for (int j = pstart[u]; j < pend[u]; j++)
+		{
+			int v = edges[j];
+			//if (!deleted_vertex[v] && !deleted_edges[e])����Ҫ
+			exist[v] = 1;
+		}
+
+		for (int j = pstart[u]; j < pend[u]; j++)
+		{
+			int v = edges[j];
+			if (!deleted_vertex[v] && !deleted_edges[edgelist_pointer[j]])
+			{
+				for (int i = pstart[v]; i < pend[v]; i++)
+				{
+					int w = edges[i], e = edgelist_pointer[i];
+					if (!deleted_vertex[w] && !deleted_edges[e] && w > v && exist[w] == 1)
+						tri_cnt[e]--;
+				}
+				deleted_edges[edgelist_pointer[j]] = 2;
+				del_e.push_back(edgelist_pointer[j]);
+				assert(degree[v] > 0);
+				degree[v]--;
+			}
+		}
+		delete[] exist;
 	}
 
-	bool check_notanyone_inS(int v)
+	void addtoD_vertex(int line, int u)
 	{
-		if (svex.empty()) return false;
-	
-		for (int i = pstart[v]; i < pend[v]; i++)
+		//if (!deleted_vertex[u]) return;
+		if (!deleted_vertex[u])
 		{
-			int u = edges[i];
-			int e = edgelist_pointer[i];
-			if (inS_v[u] && !deleted_edges[e] && !deleted_vertex[u]) return false;
+			printf("������õ������: %d\n", line);
 		}
-		return true;
+		assert(deleted_vertex[u]);
+		deleted_vertex[u] = 0;
+		del_v.pop_back();
+
+		int* exist = new int[n];
+		memset(exist, 0, sizeof(int) * n);
+		for (int j = pstart[u]; j < pend[u]; j++)
+		{
+			int v = edges[j];
+			int e = edgelist_pointer[j];
+			//if (!deleted_vertex[v] && !deleted_edges[e])//����ȷ��e�ǲ�����Ϊɾ��v��ɾ����
+			exist[v] = 1;
+		}
+
+		for (int j = pend[u] - 1; j >= (int)pstart[u]; j--)
+		{
+			int v = edges[j];
+			if (deleted_edges[edgelist_pointer[j]] == 2 && !deleted_vertex[v])//
+			{
+				for (int i = pend[v] - 1; i >= (int)pstart[v]; i--)
+				{
+					int w = edges[i], e = edgelist_pointer[i];
+					if (!deleted_vertex[w] && !deleted_edges[e] && w > v && exist[w] == 1)
+						tri_cnt[e]++;
+				}
+				deleted_edges[edgelist_pointer[j]] = 0;
+				del_e.pop_back();
+				degree[v]++;
+
+				//cal_notadj(edgelist_pointer[j]);
+			}
+		}
+		delete[] exist;
+	}
+
+	void delfrD_edge(int line, int e)
+	{
+		//printf("try to del edge %d-%d\n", edge_list[e << 1], edge_list[(e << 1) + 1]);
+
+		if (deleted_edges[e])
+		{
+			printf("%d-%d has been deleted\n", edge_list[e << 1], edge_list[(e << 1) + 1]);
+			printf("������õ������: %d\n", line);
+		}
+		assert(!deleted_edges[e]);
+
+		deleted_edges[e] = 1;
+		del_e.push_back(e);
+		int u = edge_list[e << 1], v = edge_list[(e << 1) + 1];
+		if (degree[u] <= 0 || degree[v] <= 0) printf("degree u = %d and degree v = %d\n", degree[u], degree[v]);
+		assert(degree[u] > 0);
+		assert(degree[v] > 0);
+		degree[u]--, degree[v]--;
+
+		int ii = pstart[u], jj = pstart[v];
+
+		while (true)
+		{
+			while (ii < pend[u] && deleted_edges[edgelist_pointer[ii]]) ii++;
+			while (jj < pend[v] && deleted_edges[edgelist_pointer[jj]]) jj++;
+
+			if (ii >= pend[u] || jj >= pend[v]) break;
+			if (edges[ii] == edges[jj])
+			{
+				tri_cnt[edgelist_pointer[ii]]--;
+				tri_cnt[edgelist_pointer[jj]]--;
+
+				ii++;
+				jj++;
+			}
+			else if (edges[ii] < edges[jj]) ii++;
+			else if (edges[ii] > edges[jj]) jj++;
+		}
+	}
+
+
+	void addtoD_edge(int e)
+	{
+		assert(deleted_edges[e]);
+		deleted_edges[e] = 0;
+		del_e.pop_back();
+		int u = edge_list[e << 1], v = edge_list[(e << 1) + 1];
+		degree[u]++, degree[v]++;
+
+		int ii = pstart[u], jj = pstart[v];
+
+		while (true)
+		{
+			while (ii < pend[u] && deleted_edges[edgelist_pointer[ii]]) ii++;
+			while (jj < pend[v] && deleted_edges[edgelist_pointer[jj]]) jj++;
+
+			if (ii >= pend[u] || jj >= pend[v]) break;
+			if (edges[ii] == edges[jj])
+			{
+				tri_cnt[edgelist_pointer[ii]]++;
+				tri_cnt[edgelist_pointer[jj]]++;
+
+				ii++;
+				jj++;
+			}
+			else if (edges[ii] < edges[jj]) ii++;
+			else if (edges[ii] > edges[jj]) jj++;
+		}
+
+		cal_notadj(e);
 	}
 
 	bool check_common_neighbour(int v, int e)
@@ -458,112 +589,45 @@ public:
 		return false;
 	}
 
-	void cal_notadj(int e)
+	bool check_notanyone_inS(int v)
 	{
-		notadj_e[e] = 0;
-		for (auto v : svex)
+		if (svex.empty()) return false;
+		for (int i = pstart[v]; i < pend[v]; i++)
 		{
-			if (!check_common_neighbour(v, e))
-				notadj_e[e]++;
+			int v = edges[i];
+			int e = edgelist_pointer[i];
+			if (inS_v[v] && !deleted_edges[e]) return false;
 		}
+		return true;
 	}
 
-	void delfrD_edge(int line, int e)
-	{
-		//printf("try to del edge %d-%d\n", edge_list[e << 1], edge_list[(e << 1) + 1]);
-
-		if (deleted_edges[e])
-		{
-			printf("%d-%d has been deleted\n", edge_list[e << 1], edge_list[(e << 1) + 1]);
-			printf("������õ������: %d\n", line);
-		}
-		assert(!deleted_edges[e]);
-
-		deleted_edges[e] = 1;
-		del_e.push_back(e);
-		int u = edge_list[e << 1], v = edge_list[(e << 1) + 1];
-		// if (degree[u] <= 0 || degree[v] <= 0) printf("degree u = %d and degree v = %d\n", degree[u], degree[v]);
-		// assert(degree[u] > 0);
-		// assert(degree[v] > 0);
-		degree[u]--, degree[v]--;
-
-		int ii = pstart[u], jj = pstart[v];
-
-		while (true)
-		{
-			while (ii < pend[u] && deleted_edges[edgelist_pointer[ii]]) ii++;
-			while (jj < pend[v] && deleted_edges[edgelist_pointer[jj]]) jj++;
-
-			if (ii >= pend[u] || jj >= pend[v]) break;
-			if (edges[ii] == edges[jj])
-			{
-				tri_cnt[edgelist_pointer[ii]]--;
-				tri_cnt[edgelist_pointer[jj]]--;
-
-				ii++;
-				jj++;
-			}
-			else if (edges[ii] < edges[jj]) ii++;
-			else if (edges[ii] > edges[jj]) jj++;
-		}
-	}
-
-	void addtoD_edge(int e)
-	{
-		assert(deleted_edges[e]);
-		deleted_edges[e] = 0;
-		del_e.pop_back();
-		int u = edge_list[e << 1], v = edge_list[(e << 1) + 1];
-		degree[u]++, degree[v]++;
-
-		int ii = pstart[u], jj = pstart[v];
-
-		while (true)
-		{
-			while (ii < pend[u] && deleted_edges[edgelist_pointer[ii]]) ii++;
-			while (jj < pend[v] && deleted_edges[edgelist_pointer[jj]]) jj++;
-
-			if (ii >= pend[u] || jj >= pend[v]) break;
-			if (edges[ii] == edges[jj])
-			{
-				tri_cnt[edgelist_pointer[ii]]++;
-				tri_cnt[edgelist_pointer[jj]]++;
-				ii++;
-				jj++;
-			}
-			else if (edges[ii] < edges[jj]) ii++;
-			else if (edges[ii] > edges[jj]) jj++;
-		}
-
-		cal_notadj(e);
-	}
 
 
 	bool canadd(int v)
 	{
-		//v如果是孤立节点，后续删边过程中检查孤立节点的时候就不考虑v（因为v不是因为删边才变得孤立的）
-		bool isolated_v = false;
-
 		if (svex.empty()) return true;
+		
 
-		if (cal_notadj_v(v) >= S + 1) return false; //加上v本身就有s+2个非邻居
+		if (cal_notadj_v(v) >= S + 1) return false;
 
-		if (check_notanyone_inS(v)) isolated_v = true;
+		if (check_notanyone_inS(v))
+		{
+			if (svex.size() >= S + 1) return false;
+			else return true;
+		}
 
 
-		//尝试把v加入S，看看是否会产生孤立节点
 
 		bool ret = true;
 		int* hash = new int[m];
 		memset(hash, 0, sizeof(int) * m);
 
-		//把sedge赋给sedge_temp
-		vector<int> sedge_temp = sedge;
+		vector<int> sedge_temp = sedge; 
+
 
 		svex.push_back(v);
 		inS_v[v] = true;
 
-		//由于加入v而带来的边存放在sedge_temp里面
 		for (int k = pstart[v]; k < pend[v]; k++)
 		{
 			int u = edges[k];
@@ -572,9 +636,13 @@ public:
 				sedge_temp.push_back(e);
 		}
 
-		//删去S内缺失三角形个数大于S的边
-		vector<int> todel_e;//记录删除的边，用于函数结束时的还原
+
+
+		vector<int> todel_e;
 		queue<int> Q_del;
+
+
+
 
 		for (auto it = sedge_temp.begin(); it != sedge_temp.end();)
 		{
@@ -583,12 +651,13 @@ public:
 			if (notadj_e[e] > S)
 			{
 				Q_del.push(e);
+
 				it = sedge_temp.erase(it);
 			}
 			else ++it;
 		}
 
-		//循环删去不满足条件的边
+
 		while (!Q_del.empty())
 		{
 			int e = Q_del.front();
@@ -596,6 +665,7 @@ public:
 			todel_e.push_back(e);
 			assert(hash[e] == 0);
 			hash[e] = 1;
+			//printf("del %d\n", e);
 			delfrD_edge(__LINE__, e);
 			for (auto it = sedge_temp.begin(); it != sedge_temp.end();)
 			{
@@ -604,23 +674,24 @@ public:
 				if (notadj_e[e] > S)
 				{
 					Q_del.push(e);
+
 					it = sedge_temp.erase(it);
 				}
 				else ++it;
 			}
 		}
 
-		//检查是否存在孤立节点
+
+
 		for (auto u : svex)
 		{
-			if (u == v && isolated_v) continue; // v如果是孤立节点，后续删边过程中检查孤立节点的时候就不考虑v（因为v不是因为删边才变得孤立的）
 			if (check_notanyone_inS(u))
 				ret = false;
 		}
 
-		//还原删除的边
 		for (int e = todel_e.size() - 1; e >= 0; e--)
 			addtoD_edge(todel_e[e]);
+
 
 		svex.pop_back();
 		inS_v[v] = false;
@@ -630,14 +701,13 @@ public:
 		return ret;
 	}
 
+
 	void addtoS(int u)
 	{
 		inS_v[u] = true;
 		svex.push_back(u);
 		s_size++;
-		assert(svex.size() == s_size);
 
-		//在S中加入u的边
 		for (int k = pstart[u]; k < pend[u]; k++)
 		{
 			int v = edges[k];
@@ -649,8 +719,6 @@ public:
 			}
 		}
 
-
-		//循环删除不满足条件的边
 		queue<int> Q_del;
 
 		for (auto it = sedge.begin(); it != sedge.end();)
@@ -669,7 +737,6 @@ public:
 		{
 			int e = Q_del.front();
 			Q_del.pop();
-			//printf("del %d-%d\n", edge_list[e << 1], edge_list[(e << 1) + 1]);
 			delfrD_edge(__LINE__, e);
 
 			v_del_edges[e] = u;
@@ -685,6 +752,7 @@ public:
 				else ++it;
 			}
 		}
+
 	}
 
 	void delfrS(int u)
@@ -692,14 +760,13 @@ public:
 		inS_v[u] = false;
 		svex.pop_back();
 		s_size--;
-		assert(svex.size() == s_size);
 
-		//重新加入因为删除u而删除的边
+
 		for (int e = 0; e < (m >> 1); e++)
 		{
+
 			if (deleted_edges[e] && v_del_edges[e] == u)
 			{
-				v_del_edges[e] = -1;
 				addtoD_edge(e);
 				int x = edge_list[e << 1], y = edge_list[(e << 1) + 1];
 
@@ -711,7 +778,6 @@ public:
 			}
 		}
 
-		//把u带进来的边赶走
 		for (int k = pstart[u]; k < pend[u]; k++)
 		{
 			int v = edges[k];
@@ -724,228 +790,75 @@ public:
 		}
 	}
 
-	
-	// bool canadd(int v)
-	// {
-	// 	if (svex.empty()) return true;
-	// 	//printf("stage check can add %d\n\n", v);
-	// 	int* flag = new int[m >> 1];
-	// 	memset(flag, 0, sizeof(int) * (m >> 1));
 
-	// 	for (int k = pstart[v]; k < pend[v]; k++)
-	// 	{
-	// 		ui u = edges[k], e1 = edgelist_pointer[k];
-	// 		cal_notadj(e1);
-
-	// 		if (!deleted_edges[e1] && inS_v[u] && notadj_e[e1] > S)
-	// 		{
-	// 			delfrD_edge(__LINE__, e1);
-	// 			flag[e1] = 1;
-	// 		}
-	// 	}
-	// 	//int tot = 0;
-	// 	for (auto e : sedge)
-	// 	{
-	// 		if (!check_common_neighbour(v, e))
-	// 		{
-	// 			cal_notadj(e);
-	// 			if (notadj_e[e] > S) printf("S = %d, e = %d - %d, notadj_e[e] = %d\n", S, edge_list[e << 1], edge_list[(e << 1) + 1], notadj_e[e]);
-	// 			assert(notadj_e[e] <= S);
-	// 			//if ((++tot) > S) return false;
-	// 			if (notadj_e[e] == S)
-	// 			{
-	// 				for (int k = pend[v] - 1; k >= pstart[v]; k--)
-	// 				{
-	// 					ui u = edges[k], e1 = edgelist_pointer[k];
-	// 					if (flag[e1] == 1)
-	// 					{
-	// 						addtoD_edge(e1);
-	// 						flag[e1] = 0;
-	// 					}
-	// 				}
-	// 				return false;
-	// 			}
-	// 		}
-	// 	}
-
-
-
-	// 	if (check_notanyone_inS(v))
-	// 	{
-	// 		for (int k = pend[v] - 1; k >= pstart[v]; k--)
-	// 		{
-	// 			ui u = edges[k], e1 = edgelist_pointer[k];
-	// 			if (flag[e1] == 1)
-	// 			{
-	// 				addtoD_edge(e1);
-	// 				flag[e1] = 0;
-	// 			}
-	// 		}
-	// 		return false;
-	// 	}
-
-
-	// 	for (int k = pend[v] - 1; k >= pstart[v]; k--)
-	// 	{
-	// 		ui u = edges[k], e1 = edgelist_pointer[k];
-	// 		if (flag[e1] == 1)
-	// 		{
-	// 			addtoD_edge(e1);
-	// 			flag[e1] = 0;
-	// 		}
-	// 	}
-	// 	return true;
-	// }
-
-
-	// void addtoS(int u)
-	// {
-	// 	for (int k = pstart[u]; k < pend[u]; k++)
-	// 	{
-	// 		int v = edges[k];
-	// 		int e = edgelist_pointer[k];
-	// 		cal_notadj(e);
-
-	// 		if (!deleted_edges[e] && inS_v[v] && notadj_e[e] > S)
-	// 		{
-
-	// 			delfrD_edge(__LINE__, e);
-	// 			deleted_edges[e] = 10;
-	// 		}
-
-	// 	}
-
-	// 	for (int k = pstart[u]; k < pend[u]; k++)
-	// 	{
-	// 		int v = edges[k];
-	// 		int e = edgelist_pointer[k];
-	// 		cal_notadj(e);
-	// 		if (!deleted_edges[e] && inS_v[v] && notadj_e[e] <= S)
-	// 		{
-	// 			inS_e[e] = true;
-	// 			sedge.push_back(e);
-	// 		}
-	// 	}
-
-
-
-	// 	inS_v[u] = true;
-	// 	svex.push_back(u);
-	// 	s_size++;
-
-
-	// }
-
-	// void delfrS(int u)
-	// {
-
-	// 	inS_v[u] = false;
-	// 	svex.pop_back();
-	// 	s_size--;
-
-	// 	for (int k = pend[u] - 1; k >= pstart[u]; k--)
-	// 	{
-	// 		int e = edgelist_pointer[k];
-	// 		int v = edges[k];
-	// 		if (inS_e[e])
-	// 		{
-	// 			inS_e[e] = false;
-	// 			sedge.pop_back();
-	// 		}
-	// 		else if (deleted_edges[e] == 10 && inS_v[v]) 
-	// 			addtoD_edge(e);
-	// 	}
-
-	// }
-
-	void delfrD_vertex(int line, int u)
+	bool check_adj_vertex(int u, int v)
 	{
-		// if (deleted_vertex[u])
-		// {
-		// 	printf("错误调用的入口在: %d\n", line);
-		// }
-		// //if (n == 31) printf("del %d\n", u);
-		// assert(!deleted_vertex[u]);
-		deleted_vertex[u] = 1;
-		del_v.push_back(u);
-
-		int* exist = new int[n];
-		memset(exist, 0, sizeof(int) * n);
-		for (int j = pstart[u]; j < pend[u]; j++)
+		for (int i = pstart[u]; i < pend[u]; i++)
 		{
-			int v = edges[j];
-			exist[v] = 1;
+			int e = edgelist_pointer[i];
+			if (!deleted_vertex[edges[i]] && edges[i] == v) return true;//!deleted_edges[e]&& 
+		}
+		return false;
+	}
+
+	int cal_notadj_v(int v)
+	{
+		int cnt = 0;
+		for (auto u : svex)
+			if (!check_adj_vertex(u, v) && u != v) cnt++;
+		return cnt;
+	}
+
+	int combination(int n, int k) {
+		vector<vector<int>> dp(n + 1, vector<int>(k + 1, 0));
+
+		for (int i = 0; i <= n; ++i) {
+			for (int j = 0; j <= min(i, k); ++j) {
+				if (j == 0 || j == i)
+					dp[i][j] = 1;
+				else
+					dp[i][j] = dp[i - 1][j - 1] + dp[i - 1][j];
+			}
 		}
 
-		for (int j = pstart[u]; j < pend[u]; j++)
-		{
-			int v = edges[j];
-			if (!deleted_vertex[v] && !deleted_edges[edgelist_pointer[j]])
-			{
-				for (int i = pstart[v]; i < pend[v]; i++)
-				{
-					int w = edges[i], e = edgelist_pointer[i];
-					if (!deleted_vertex[w] && !deleted_edges[e] && w > v && exist[w] == 1)
-						tri_cnt[e]--;
-				}
-				deleted_edges[edgelist_pointer[j]] = 2;
-				del_e.push_back(edgelist_pointer[j]);
-				//assert(degree[v] > 0);
-				degree[v]--;
-			}
+		return dp[n][k];
+	}
+
+
+
+	void findSubsets(vector<vector<int>>& result, vector<int>& subset, vector<int> remain_undel_v, int start,int n, int s, int target) 
+	{
+		if (result.size() >= target) return;
+
+		if (s == 0) {
+			result.push_back(subset);
+			printf("Remain subset:%d\n", target - result.size());
+			return;
+		}
+
+		for (int i = start; i < remain_undel_v.size(); ++i) {
+			int v = remain_undel_v[i];
+			subset.push_back(v);
+			findSubsets(result, subset, remain_undel_v, i + 1, n, s - 1, target);
+			subset.pop_back();
 		}
 	}
 
-	void addtoD_vertex(int line, int u)
+
+	bool bb_s_plex(int curS, clock_t start, bool& timeflag)
 	{
-		//if (!deleted_vertex[u]) return;
-		if (!deleted_vertex[u])
+		for (auto u : svex)
+			inS_v[u] = 100;
+		for (int i = 0; i < n; i++)
 		{
-			printf("错误调用的入口在: %d\n", line);
+			if (inS_v[i] != 100)
+				inS_v[i] = 0;
 		}
-		assert(deleted_vertex[u]);
-		deleted_vertex[u] = 0;
-		del_v.pop_back();
+		for (auto u : svex)
+			inS_v[u] = 1;
 
-		int* exist = new int[n];
-		memset(exist, 0, sizeof(int) * n);
-		for (int j = pstart[u]; j < pend[u]; j++)
-		{
-			int v = edges[j];
-			int e = edgelist_pointer[j];
-			exist[v] = 1;
-		}
 
-		for (int j = pend[u] - 1; j >= (int)pstart[u]; j--)
-		{
-			int v = edges[j];
-			if (deleted_edges[edgelist_pointer[j]] == 2 && !deleted_vertex[v])//
-			{
-				for (int i = pend[v] - 1; i >= (int)pstart[v]; i--)
-				{
-					int w = edges[i], e = edgelist_pointer[i];
-					if (!deleted_vertex[w] && !deleted_edges[e] && w > v && exist[w] == 1)
-						tri_cnt[e]++;
-				}
-				deleted_edges[edgelist_pointer[j]] = 0;
-				del_e.pop_back();
-				degree[v]++;
-			}
-		}
-	}
-
-	bool bb_s_eplex(int curS, clock_t start, bool& timeflag, int depth)
-	{
-		for (int i = 0; i < n;i++)
-		{
-			if(deleted_vertex[i]) continue;
-			degree[i] = 0;
-			for (int j = 0; j < n;j++)
-			{
-				if(!deleted_vertex[j]&&check_adj_vertex(i,j))
-					degree[i]++;
-			}
-		}
+		//pruning rules
 
 		if (svex.size() >= LB)
 		{
@@ -954,7 +867,7 @@ public:
 		}
 
 		clock_t finish;
-		finish = clock();
+		finish = clock(); 
 		double time = (double)(finish - start) / CLOCKS_PER_SEC;
 		if (time > 86400)
 		{
@@ -964,14 +877,12 @@ public:
 
 		if (curS < LB) return false;
 
-		//选择度数最小的节点
 		int minID = -1;
 		for (int i = 0; i < n; ++i) if (!deleted_vertex[i]) {
 			if (minID == -1 || degree[i] < degree[minID])
 				minID = i;
 		}
 
-		//选择支持度最小的边
 		int min_tri = n, min_eid = -1;
 		for (int i = 0; i < (m >> 1); i++)
 		{
@@ -982,15 +893,26 @@ public:
 			}
 		}
 
-		//支持度最小的边符合要求，说明整个S \cup U 都满足要求
-		if (tri_cnt[min_eid] >= curS - 2 - S)
+
+		if (tri_cnt[min_eid] >= curS - 2 - S && degree[minID] >= curS - S - 1)
 		{
+			//printf("min tri_cnt = %d min_e = %d-%d\n", tri_cnt[min_eid], oldID[edge_list[min_eid << 1]], oldID[edge_list[(min_eid << 1) + 1]]);
+			//output_min_k_truss();
 			printf("The size of current vertex set is %d\n\n", svex.size());
 			printf("There are %d vertices remaining\n\n", curS);
 			return true;
 		}
+		
 
-
+		if (degree[minID] <= LB - 2 - S) //说明MinID不可能加入最终解，第9行
+		{
+			if (inS_v[minID])
+				return false;
+			delfrD_vertex(__LINE__, minID);
+			bool ret = bb_s_plex(curS - 1, start, timeflag);
+			addtoD_vertex(__LINE__, minID);
+			return ret;
+		}
 
 		int maxID = -1;//maxID指在s中非邻居数量最多的节点
 		for (int i = 0; i < n; ++i) if (!deleted_vertex[i]) {
@@ -998,15 +920,17 @@ public:
 				maxID = i;
 		}
 
-		//如果maxID不在s中，且他在s中非邻居至少为S+1，那他必被删，第5行，lemma2
+		//如果maxID不在s中，且他在s中非邻居大于S+1，那他必被删，第5行，lemma2
+
 		if (!inS_v[maxID] && cal_notadj_v(maxID) >= S + 1) {
 			delfrD_vertex(__LINE__, maxID);
-			bool ret = bb_s_eplex(curS - 1, start, timeflag, depth + 1);
+			bool ret = bb_s_plex(curS - 1, start, timeflag);
 			addtoD_vertex(__LINE__, maxID);
 			return ret;
 		}
 
 		//如果maxID在s中，且非邻居大于S(不包括他自己，所以加上她自己就是S+1），该节点是临界点，可以借助临界点来删除c中和临界点不相邻的节点，第5行，lemma2
+
 		if (inS_v[maxID] && cal_notadj_v(maxID) >= S) {
 			if (cal_notadj_v(maxID) >= S + 1) return false;
 			std::vector <int> todel;
@@ -1014,29 +938,26 @@ public:
 				todel.push_back(i);
 			}
 			if (todel.size()) {
-				for (auto x : todel) delfrD_vertex(__LINE__, x);
-				bool ret = bb_s_eplex(curS - todel.size(), start, timeflag, depth + 1);
+				for (auto x : todel) delfrD_vertex(__LINE__,x);
+				bool ret = bb_s_plex(curS - todel.size(), start, timeflag);
 				for (auto x : todel) addtoD_vertex(__LINE__, x);
 				return ret;
 			}
 		}
 
-		//开始分支（以minID为基准，在这里指的是k-unsatisfied节点)
+
+		//开始分支（以minID为基准，在这里指的是k-unsatisfied节点，因为若整个图不满足780行的情况，那么minID肯定是k-unsatisfied)
 		std::vector <int> branch;
 		for (int x = 0; x < n; ++x) if (!deleted_vertex[x] && x != minID && !inS_v[x]) {
 			if (!check_adj_vertex(minID, x))
 				branch.push_back(x);
 		}
 
-
-		if(branch.size()==0)
-			return false;
-
 		random_shuffle(branch.begin(), branch.end());
 
 		//若minID在s中
 		if (inS_v[minID]) {
-			int canselect = (S + 1) - (cal_notadj_v(minID) + 1), pos = -1;
+			int canselect = S - cal_notadj_v(minID), pos = -1;
 			bool ret = false;
 			for (int i = 0; !ret && i < canselect; ++i) {
 				delfrD_vertex(__LINE__, branch[i]);
@@ -1048,7 +969,7 @@ public:
 					addtoS(branch[i - 1]);
 					pos = i - 1;
 				}
-				ret |= bb_s_eplex(curS - 1, start, timeflag, depth + 1);
+				ret |= bb_s_plex(curS - 1, start, timeflag);
 				addtoD_vertex(__LINE__, branch[i]);
 			}
 			if (ret) {
@@ -1062,8 +983,7 @@ public:
 			//最后一个分支
 			if (canselect == 0 || canadd(branch[canselect - 1])) {
 				if (canselect) addtoS(branch[canselect - 1]);
-				//printf("branch_size=%d canselect = %d\n", branch.size(), canselect);
-				ret |= bb_s_eplex(curS - branch.size() + canselect, start, timeflag, depth + 1);
+				ret |= bb_s_plex(curS - branch.size() + canselect, start, timeflag);
 				if (canselect) delfrS(branch[canselect - 1]);
 			}
 			for (int i = 0; i <= pos; ++i) delfrS(branch[i]);
@@ -1077,11 +997,11 @@ public:
 		else {
 			delfrD_vertex(__LINE__, minID);
 
-			bool ret = bb_s_eplex(curS - 1, start, timeflag, depth + 1);
+			bool ret = bb_s_plex(curS - 1, start, timeflag);
 			addtoD_vertex(__LINE__, minID);
 
 			if (ret) return true;
-			int canselect = (S + 1) - (cal_notadj_v(minID) + 1);
+			int canselect = S - cal_notadj_v(minID);
 			if (!canadd(minID)) return false;
 			addtoS(minID);
 			int pos = -1;
@@ -1095,7 +1015,7 @@ public:
 					addtoS(branch[i - 1]);
 					pos = i - 1;
 				}
-				ret |= bb_s_eplex(curS - 1, start, timeflag, depth + 1);
+				ret |= bb_s_plex(curS - 1, start,  timeflag);
 				addtoD_vertex(__LINE__, branch[i]);
 			}
 			if (ret) {
@@ -1108,8 +1028,7 @@ public:
 			}
 			if (canselect == 0 || canadd(branch[canselect - 1])) {
 				if (canselect) addtoS(branch[canselect - 1]);
-				//printf("branch_size=%d canselect = %d\n", branch.size(), canselect);
-				ret |= bb_s_eplex(curS - branch.size() + canselect, start, timeflag, depth + 1);
+				ret |= bb_s_plex(curS - branch.size() + canselect, start, timeflag);
 				if (canselect) delfrS(branch[canselect - 1]);
 			}
 			for (int i = 0; i <= pos; ++i) delfrS(branch[i]);
@@ -1119,8 +1038,65 @@ public:
 			delfrS(minID);
 			return ret;
 		}
+
+		return false;
+	}
+
+	void output_min_k_truss()
+	{
+		vector<int> ans_v;
+		for (int i = 0; i < n; i++)
+			if (!deleted_vertex[i]) ans_v.push_back(i);
+		ofstream outfile;
+		string outname = "/home/zhangqifan/min_k_truss/dataset/min_k_truss_temp" + to_string(oldID[must_include]) + ".txt";
+		outfile.open(outname);
+		set<pair<int, int>> ans_e;
+		int cnt = 0;
+		for (auto v : ans_v)
+		{
+			cnt++;
+			printf("ans %d = %d ", cnt, oldID[v]);
+			int deg = 0;
+			for (int j = pstart[v]; j < pend[v]; j++)
+			{
+				int u = edges[j];
+				if (!deleted_vertex[u])deg++;
+			}
+			printf("degree = %d\n", deg);
+
+
+
+			for (int j = pstart[v]; j < pend[v]; j++)
+			{
+				int u = edges[j];
+				if (!deleted_vertex[u])
+				{
+					if (v < u)
+					{
+						ans_e.insert(mp(oldID[v], oldID[u]));
+					}
+					else
+					{
+						ans_e.insert(mp(oldID[u], oldID[v]));
+					}
+				}
+			}
+		}
+		for (auto e : ans_e)
+			outfile << e.first << " " << e.second << " " << endl;
+		outfile.close();
 	}
 
 
 
 };
+
+
+
+
+
+
+
+
+#endif // !_BNB_H_
+

@@ -9,8 +9,6 @@
 #include"BnB_iterall.h"
 #include"BNB-Topc.h"
 #include"ktb_enum_topc.h"
-#include"BNB-plex.h"
-#include"BK-eplex.h"
 
 
 class Graph {
@@ -29,7 +27,7 @@ private:
 	ui* edges;
 
 	ui* edgelist_pointer; 
-	ui* edge_list; 
+	ui* edge_list;
 	ui* tri_cnt; 
 	ui* old_id;
 	ui* old_old_id;
@@ -302,7 +300,7 @@ public:
 		memset(inq, false, m);
 		memset(deleted, false, m);
 
-
+		//��supportС��k-2�ı߼���Qe��
 
 		for (ui i = 0; i < n; i++)
 		{
@@ -319,6 +317,7 @@ public:
 			}
 		}
 
+		//ɾ�����ϸ�ıߣ������º�������������ߵ�support�����µĲ��ϸ�ı߼���Qe
 
 		while (!Qe.empty())
 		{
@@ -403,10 +402,32 @@ public:
 		}
 		cout << "remaining vertices: " << cnt << endl;
 
+
+
+		//for (ept i = 0; i < (m>>1); i++)
+		//	printf("%d %d\n", edge_list[i << 1], edge_list[(i << 1) + 1]);
+
+
 		rebulid_graph(tri_cnt, edge_list, edgelist_pointer);
 
-	}
 
+		//for (ui i = 0; i < m / 2; i++)
+		//	printf("sup %d %d-%d = %d\n", i, edge_list[i << 1] + 1, edge_list[(i << 1) + 1] + 1, tri_cnt[i]);
+
+		//for (ui i = 0; i < n; i++)
+		//{
+		//	printf("%d\n", i);
+		//	for (ept j = pstart[i]; j < pend[i]; j++)
+		//	{
+		//		ept e = edgelist_pointer[j];
+		//		printf("%d %d\n", edge_list[e << 1], edge_list[(e << 1) + 1]);
+		//	}
+		//}
+		//printf("\n\n");
+		//for (ept i = 0; i < (m >> 1); i++)
+		//	printf("%d %d\n", edge_list[i << 1], edge_list[(i << 1) + 1]);
+
+	}
 
 
 	ept core_truss_co_pruning(ui& deleted_nodes, queue<ui>& Qv, ui d_threshold, queue<ept>& Qe, ui t_threshold, ui* tri_cnt, ui* active_edgelist, ui& active_edgelist_n, ui* edge_list, ui* edgelist_pointer, bool* deleted, ui* degree, ept* pstart, ept* pend, ui* edges, bool* exists)
@@ -544,16 +565,50 @@ public:
 
 	ept CTCP(bool* inq, ui& deleted_nodes, queue<ui>& Qv, ui d_threshold, queue<ept>& Qe, ui t_threshold, ui* tri_cnt, ui* active_edgelist, ui& active_edgelist_n, ui* edge_list, ui* edgelist_pointer, bool* deleted, ui* degree, ept* pstart, ept* pend, ui* edges, bool* exists)
 	{
+		/*bool* inq = new bool[n];
+		memset(inq, false, sizeof(bool) * n);*/
+
+		/*for (ui i = 0; i < m / 2; i++)
+			printf("sup %d %d-%d = %d\n",i, edge_list[i << 1]+1, edge_list[(i << 1) + 1]+1, tri_cnt[i]);*/
+			/*	ui new_n = 0;
+				for (ept i = 0; i < active_edgelist_n; i++)
+				{
+					ui e = edgelist_pointer[i];
+					if (tri_cnt[e] < t_threshold) Qe.push(e);
+					else active_edgelist[new_n++] = e;
+				}
+				active_edgelist_n = new_n;*/
+
+				//��취��active_edgelist��������������������������������
+
 		for (ept i = 0; i < m / 2; i++)
 		{
 			if (!deleted[i] && tri_cnt[i] < t_threshold) Qe.push(i);
 		}
+
+		//for (ui i = 0; i < m / 2; i++)
+	 //   printf("sup %d %d-%d = %d\n", i, edge_list[i << 1] + 1, edge_list[(i << 1) + 1] + 1, tri_cnt[i]);
+
+		//for (ui i = 0; i < n; i++)
+		//	printf("degree %d = %d\n", i + 1, degree[i]);
+		//printf("\n");
+
 
 		if (Qv.empty()) deleted_nodes = 0;
 		else deleted_nodes = 1;
 
 		ui deleted_edges = 0;
 		peeling(deleted_edges, Qv, Qe, t_threshold, tri_cnt, edge_list, edgelist_pointer, deleted, degree, pstart, pend, edges, exists);
+
+		//printf("\n!!!!!!!!!!!!\n");
+
+		//for (ui i = 0; i < n; i++) printf("%d: %d %d\n", i + 1, pstart[i], pend[i]);
+
+		//for (ui i = 0; i < n; i++)
+		//	printf("degree %d = %d\n", i+1, degree[i]);
+		//printf("\n");
+		//for (ui i = 0; i < m / 2; i++)
+	 //   printf("sup %d %d-%d = %d\n", i, edge_list[i << 1] + 1, edge_list[(i << 1) + 1] + 1, tri_cnt[i]);
 
 		bool flag = false;
 
@@ -687,6 +742,7 @@ public:
 		}
 	}
 
+
 	void rebulid_graph(ui* tri_cnt, ui* edge_list, ui* edgelist_pointer)
 	{
 		ept* pstart1 = new ept[n];
@@ -779,6 +835,22 @@ public:
 		}
 		cout << endl;
 
+		/*	for (ui i = 0; i < n; i++)
+			{
+				printf("i = %d start = %d end =%d\n", i, pstart[i], pend[i]);
+			}
+
+
+			for (ui i = 0; i < n; i++)
+			{
+				for (ept j = pstart[i]; j < pend[i]; j++)
+				{
+					ui e = edgelist_pointer[j];
+					printf("%d-%d %d-%d\n", edge_list[e << 1], edge_list[(e << 1) + 1], i, edges[j]);
+				}
+			}*/
+			//pstart = pstart1;
+			//pend = pend1;
 		printf("In the remaining graph: n = %d, m = %d\n", n_cnt, m / 2);
 	}
 
@@ -806,6 +878,13 @@ public:
 		}
 		outfile.close();
 
+	/*	filename = "/home/zhangqifan/min_k_truss/dataset/query_set.txt";
+		std::remove(filename);
+		outfile.open(filename);
+		outfile << n << endl;
+		for (int i = 0; i < n; i++)
+			outfile << old_old_id[i] << endl;
+		outfile.close();*/
 
 
 		ui temp_n = n;
@@ -850,11 +929,12 @@ public:
 
 		for (ui i = 0; i <= n - K && !ans; i++)
 		{
-
+			
+			//�����ktb�Ĵ�СΪmax_size���ǲ���Ҫ�����ҵ������ktb����ͨ�ԣ���Ϊ�� 1.��max_size>=S+K,���Ǿ��ҵ��˴�СΪS+K����Сktruss,��Ȼ����ͨ�ġ� 2.��max_size<S+K�����S���Ҳ�����Сktruss
+			//Preprocessing
 			if ((int)(n - K) < 0) break;
 			printf("n = %d, m = %d\n", n, m / 2);
 			ui S = i;
-
 
 			ui* active_edgelist = new ui[m >> 1];
 			ui active_edgelist_n = m >> 1;
@@ -870,8 +950,6 @@ public:
 
 			queue<ui> Qv;
 			queue<ept> Qe;
-
-
 
 			ui lb = S + K;
 			printf("S = %d and LB = %d\n", S, lb);
@@ -891,7 +969,49 @@ public:
 			for (ui i = 0; i < n; i++) degree[i] = pend[i] - pstart[i];
 
 
-			
+			if (method == "BNBGLOBAL")
+			{
+				ui* ids = new ui[n];
+				ui ids_n = 0, rid_n = 0;
+				ui* rid = new ui[n];
+				vector<pair<int, int> > vp; vp.reserve(m / 2);
+				for (ui i = 0; i < n; i++)
+				{
+					if (degree[i] > 0)
+					{
+						ids[ids_n] = i;
+						rid[ids[ids_n]] = rid_n;
+						ids_n++;
+						rid_n++;
+					}
+				}
+
+				for (ui i = 0; i < n; i++)
+				{
+					if (degree[i] > 0)
+					{
+						for (ept j = pstart[i]; j < pend[i]; j++)
+						{
+							if (edges[j] > i && !deleted[edgelist_pointer[j]]) vp.push_back(mp(rid[i], rid[edges[j]]));
+						}
+					}
+				}
+
+				bool ret;
+				BnBG* bnbg = new BnBG(S, lb);
+				bnbg->load_graph(ids_n, rid, vp, ids);
+				bnbg->rearrange_graph();
+				ret = bnbg->bb_s_truss_bar(ids_n, start, timeflag);
+				bnbg->~BnBG();
+
+				if (ret)
+				{
+					printf("K = %d and Find a min_k_truss of size: %d\n", K, S + K);
+					ans = true;
+					return S + K;
+				}
+				continue;
+			}
 			//Choose vertex. Find 2-hop neighbours. Branch and Bound.
 			ui* choosed = new ui[n];
 			memset(choosed, 0, sizeof(ui) * n);
@@ -927,61 +1047,78 @@ public:
 				memset(exist, 0, sizeof(ui) * n);
 
 
-				//�Ҷ����ھ�
 				extract_subgraph_and_prune(lb, S + 1, min_id, ids, ids_n, rid, vp, Q, t_degree, exist, pend, deleted, edgelist_pointer);
 
 				if (ids_n != 0)
 					printf("\nids_n = %d\n", ids_n);
 
-				//for (ui i = 0; i < ids_n; i++) printf(" %u", ids[i]);
-
-				//for (ui i = 0; i < ids_n; i++) printf("\n%d", rid[ids[i]]);
-				//for (ui i = 0; i < vp.size(); i++) printf("\n%d-%d", vp[i].first, vp[i].second);
+	
 
 
 				if (ids_n >= lb)
 				{
+					//printf("\nmin_id = %d\n", rid[min_id]);
+					//bool ret = Branch_and_Bound();
+					//if(ret) break; �ҵ���СΪs+k��min_k_truss�����̷���s+k�����ü�����
 					old_id = new ui[ids_n];
 					for (int i = 0; i < ids_n; i++)
 					{
 						old_id[rid[ids[i]]] = old_old_id[ids[i]];
 					}
 
-					BnB1* bnb = new BnB1(S, lb);
-					bnb->load_graph(rid[min_id], ids_n, rid, vp, old_id);
-
-					bnb->rearrange_graph();   ///��ԭ
-
-					//ɾ
-					/*bnb->test();
-					exit(1);*/
-
-
-					bool ret = bnb->bb_s_truss_bar(ids_n, start, timeflag);
-					bnb->~BnB1();
-
-
-					//test!!!!!!!!!!!!!!�ǵ�ɾ
-					//ret = true;
-
-
-					if (ret)
+					if (method == "IE_ENUM")
 					{
-						printf("choose vertex = %d\n", choosed_vertex);
-						printf("K = %d and Find a min_k_truss of size: %d\n", K, S + K);
-						ans = true;
-						return S + K;
-						break;
-					}
-					
-					if (!ret)
-					{
-						if (S == K - 1) return -1;
-						//printf("Cannot find query vertex based ans!\n");
-						break;
-						//return -1;
-					}
+						bool ret;
+						ENUM* enum1 = new ENUM(S, lb);
+						enum1->load_graph_IE(rid[min_id], ids_n, rid, vp, old_id); //enum1->load_graph(rid[min_id], ids_n, rid, vp, ids);
 
+						ret = enum1->find_bounded_stb(start, timeflag);
+						enum1->~ENUM();
+						if (ret)
+						{
+							printf("choose vertex = %d\n", old_old_id[min_id]);
+							printf("K = %d and Find a min_k_truss of size: %d\n", K, S + K);
+							ans = true;
+							return S + K;
+							break;
+						}
+
+						if (!ret)
+						{
+							if (S == K - 1) return -1;
+							//printf("Cannot find query vertex based ans!\n");
+							break;
+							//return -1;
+						}
+					}
+					else if (method == "BNB")
+					{
+						BnB1* bnb = new BnB1(S, lb);
+						bnb->load_graph(rid[min_id], ids_n, rid, vp, old_id);
+
+						bnb->rearrange_graph();   
+
+
+						bool ret = bnb->bb_s_truss_bar(ids_n, start, timeflag);
+						bnb->~BnB1();
+
+						if (ret)
+						{
+							printf("choose vertex = %d\n", choosed_vertex);
+							printf("K = %d and Find a min_k_truss of size: %d\n", K, S + K);
+							ans = true;
+							return S + K;
+							break;
+						}
+
+						if (!ret)
+						{
+							if (S == K - 1) return -1;
+							//printf("Cannot find query vertex based ans!\n");
+							break;
+							//return -1;
+						}
+					}
 				}
 
 			}
@@ -1038,7 +1175,11 @@ public:
 	int find_min_k_truss(clock_t start, bool& timeflag, string method)
 	{
 		read_graph();
+		//read_graph_ratio(0.2);
 		max_truss();
+
+	
+
 		ofstream outfile;
 
 		//output maximum k-truss
@@ -1053,6 +1194,72 @@ public:
 		}
 		outfile.close();
 
+		//output remaining vertices in maximum k-truss
+		const char* filename;
+		filename = "/home/zhangqifan/min_k_truss/dataset/query_set8.txt";
+		std::remove(filename);
+		outfile.open(filename);
+		outfile << n << endl;
+		for (int i = 0; i < n; i++)
+			outfile << old_old_id[i] << endl;
+		outfile.close();
+
+		/*for (int i = 0; i < n; i++)
+			cout << pend[i]-pstart[i] << endl;*/
+
+
+		//Dense vertex, sparse vertex and random vertex according to vertex support.
+		vertex_support = new ui[n];
+		memset(vertex_support, 0, sizeof(ui) * n);
+		for (int i = 0; i < n; i++)
+		{
+			ui max_support = 0;
+			for (ept j = pstart[i]; j < pend[i]; j++)
+			{
+				ui eid = edgelist_pointer[j];
+				if (tri_cnt[eid] > max_support)
+				{
+					vertex_support[i] = tri_cnt[eid];
+				}
+			}
+		}
+		vector<pair<ui, ui>> support_rank;
+		for (int i = 0; i < n; i++)
+			support_rank.push_back(make_pair(old_old_id[i], vertex_support[i]));
+		sort(support_rank.begin(), support_rank.end(), cmp);
+
+		int dense_id = (int)(n * 0.05), sparse_id = (int)(n * 0.95), random_id = (int)(n * 0.6);
+
+		outfile.open("/home/zhangqifan/min_k_truss/dataset/query_type.txt");
+		for (int i = 0; i < 3; i++)
+		{
+			outfile << " dense = " << support_rank[dense_id + i].first << endl;
+			outfile << " sparse = " << support_rank[sparse_id + i].first << endl;
+			outfile << " random = " << support_rank[random_id + i].first << endl;
+		}
+		outfile.close(); 
+
+	/*	for (int i = 0; i < n; i++)
+			cout << support_rank[i].second << " " << support_rank[i].first << endl;*/
+		
+
+	/*	vector<pair<ui, ui>> degree_rank;
+		for (int i = 0; i < n; i++)
+			degree_rank.push_back(make_pair(old_old_id[i], pend[i] - pstart[i]));
+		sort(degree_rank.begin(), degree_rank.end(), cmp);
+
+		int dense_id = (int)n * 0.05, sparse_id = (int)n * 0.95, random_id = (int)n * 0.6;
+
+		outfile.open("/home/zhangqifan/min_k_truss/dataset/query_type.txt");
+		for (int i = 0; i < 3; i++)
+		{
+			outfile << " dense = " << degree_rank[dense_id + i].first << endl;
+			outfile << " sparse = " << degree_rank[sparse_id + i].first << endl;
+			outfile << " random = " << degree_rank[random_id + i].first << endl;
+		}
+		outfile.close();*/
+		//printf("dense=%d %d %d sparse=%d %d %d random=%d %d %d\n", degree_rank[(int)n * 0.05].first, degree_rank[(int)n * 0.95].first, degree_rank[(int)n * 0.6].first);
+			
 
 		ui temp_n = n;
 		ept temp_m = m;
@@ -1141,12 +1348,11 @@ public:
 				ENUM* enum1 = new ENUM(S, lb);
 				enum1->load_graph_GLOBAL(n, rid, vp); //enum1->load_graph(rid[min_id], ids_n, rid, vp, ids);
 
-				
-				ret = enum1->find_bounded_stb_Global(start, timeflag);
+				ret = enum1->find_bounded_stb(start, timeflag);
 				enum1->~ENUM();
 				if (ret)
 				{
-					printf("K = %d and ENUM_G11 finds a min_k_truss of size: %d\n", K, S + K);
+					printf("K = %d and ENUM_G finds a min_k_truss of size: %d\n", K, S + K);
 					ans = true;
 					return S + K;
 					break;
@@ -1161,7 +1367,52 @@ public:
 
 			for (ui i = 0; i < n; i++) degree[i] = pend[i] - pstart[i];
 
-			
+			//DSA \ IE
+			if (method == "BNBGLOBAL")
+			{
+				ui* ids = new ui[n];
+				ui ids_n = 0, rid_n = 0;
+				ui* rid = new ui[n];
+				vector<pair<int, int> > vp; vp.reserve(m / 2);
+				for (ui i = 0; i < n; i++)
+				{
+					if (degree[i] > 0)
+					{
+						ids[ids_n] = i;
+						rid[ids[ids_n]] = rid_n;
+						ids_n++;
+						rid_n++;
+					}
+				}
+
+				for (ui i = 0; i < n; i++)
+				{
+					if (degree[i] > 0)
+					{
+						for (ept j = pstart[i]; j < pend[i]; j++)
+						{
+							if (edges[j] > i && !deleted[edgelist_pointer[j]]) vp.push_back(mp(rid[i], rid[edges[j]]));
+						}
+					}
+				}
+
+				bool ret;
+				BnBG* bnbg = new BnBG(S, lb);
+				bnbg->load_graph(ids_n, rid, vp, ids);
+				bnbg->rearrange_graph();
+				ret = bnbg->bb_s_truss_bar(ids_n, start, timeflag);
+				bnbg->~BnBG();
+
+				if (ret)
+				{
+					printf("K = %d and Find a min_k_truss of size: %d\n", K, S + K);
+					ans = true;
+					return S + K;
+				}
+				continue;
+			}
+
+
 			//Choose vertex. Find 2-hop neighbours. Branch and Bound.
 			ui* choosed = new ui[n];
 			memset(choosed, 0, sizeof(ui) * n);
@@ -1208,13 +1459,16 @@ public:
 				ui* exist = new ui[n];
 				memset(exist, 0, sizeof(ui) * n);
 
-		
+				//for (int i = 0; i < (m >> 1); i++)
+				//	printf("%d-%d\n", edge_list[i << 1], edge_list[(i << 1) + 1]);
+
 
 				//Find 2-hop neighbors
 				extract_subgraph_and_prune(lb, S + 1, min_id, ids, ids_n, rid, vp, Q, t_degree, exist, pend, deleted, edgelist_pointer);
 
 				if (ids_n != 0)
-					printf("\nS = %d and ids_n = %d\n",S, ids_n);
+					printf("\n S = %d and ids_n = %d\n", S, ids_n);
+
 
 
 				if (ids_n >= lb)
@@ -1224,7 +1478,6 @@ public:
 					{
 						old_id[rid[ids[i]]] = old_old_id[ids[i]];
 					}
-
 
 					if (method == "IE_ENUM")
 					{
@@ -1250,35 +1503,11 @@ public:
 						BnB1* bnb = new BnB1(S, lb);
 						bnb->load_graph(rid[min_id], ids_n, rid, vp, old_id);
 
-						bnb->rearrange_graph();   ///��ԭ
-
-						//ɾ
-						/*bnb->test();
-						exit(1);*/
-
-
+						bnb->rearrange_graph();  
+		
 						bool ret = bnb->bb_s_truss_bar(ids_n, start, timeflag);
 						bnb->~BnB1();
 
-
-						if (ret)
-						{
-							printf("choose vertex = %d\n", old_old_id[min_id]);
-							printf("K = %d and Find a min_k_truss of size: %d\n", K, S + K);
-							ans = true;
-							return S + K;
-							break;
-						}
-					}
-
-					else if (method == "BKEPLEX")
-					{
-						BKEPLEX* bnbplex = new BKEPLEX(S, lb);
-						bnbplex->load_graph(rid[min_id], ids_n, rid, vp, old_id);
-						bnbplex->rearrange_graph();
-
-						bool ret = bnbplex->bb_s_eplex(ids_n, start, timeflag, 1);
-						bnbplex->~BKEPLEX();
 
 						if (ret)
 						{
@@ -1394,10 +1623,15 @@ public:
 
 		for (ui i = 0; i <= n - K && !ans; i++)
 		{
+			//�����ktb�Ĵ�СΪmax_size���ǲ���Ҫ�����ҵ������ktb����ͨ�ԣ���Ϊ�� 1.��max_size>=S+K,���Ǿ��ҵ��˴�СΪS+K����Сktruss,��Ȼ����ͨ�ġ� 2.��max_size<S+K�����S���Ҳ�����Сktruss
 			//Preprocessing
 			if ((int)(n - K) < 0) break;
 			printf("n = %d, m = %d\n", n, m / 2);
 			ui S = i;
+
+			//����ʽ����һ��S-truss-bar����Ϊ�½硣ע�����ﲻ������ʽ��һ��(S+1)-plex,��Ϊ�ҵ���plex����truss_bar�Ŀ��н⣬�ʲ�����Ϊ�½� 
+			// ����Ҫ�ˣ����½���S+K
+			//ept UB = find_lb_ktb(S);
 
 			ui* active_edgelist = new ui[m >> 1];
 			ui active_edgelist_n = m >> 1;
@@ -1500,9 +1734,11 @@ public:
 				}
 				choosed[min_id] = 1;
 
+
+				//���������ɱ����ڻ���Ľ⣬prune��
 				if (min_key < lb - (S + 1))
 				{
-					if (degree[min_key] != 0) 
+					if (degree[min_key] != 0)  //degree = 0˵���ڸýڵ��Ѿ���ɾ����
 					{
 						while (!Qv.empty()) Qv.pop();
 						while (!Qe.empty()) Qe.pop();
@@ -1551,7 +1787,6 @@ public:
 						enum1->load_graph_IE(rid[min_id], ids_n, rid, vp, old_id, c, topc_ans); //enum1->load_graph(rid[min_id], ids_n, rid, vp, ids);
 
 						ret = enum1->find_bounded_stb(start, timeflag, C);
-						enum1->update_topc(topc_ans);
 						enum1->~ENUMC();
 						if (C >= c)
 						{
@@ -1616,275 +1851,6 @@ public:
 			for (ui i = 0; i < (temp_m >> 1); i++)
 			{
 				tri_cnt[i] = temp_tri_cnt[i];
-			}
-
-
-		}
-
-		if (!ans)
-		{
-			printf("There is no %d-truss in the graph.\n", K);
-		}
-
-
-	}
-
-	int find_min_k_truss_iterall(clock_t start, bool& timeflag, string method)
-	{
-		int minsize = 100000000;
-		read_graph();
-		max_truss();
-
-		ui temp_n = n;
-		ept temp_m = m;
-
-		ept* temp_pstart = new ept[n];
-		ept* temp_pend = new ept[n];
-		ui* temp_edges = new ui[m];
-		ui* temp_edgelist_pointer = new ui[m];
-		ui* temp_tri_cnt = new ui[m >> 1];
-		ui* temp_edge_list = new ui[m];
-
-		memset(temp_pstart, 0, sizeof(ept) * n);
-		memset(temp_pstart, 0, sizeof(ept) * n);
-		memset(temp_edges, 0, sizeof(ui) * m);
-		memset(temp_edgelist_pointer, 0, sizeof(ui) * m);
-		memset(temp_tri_cnt, 0, sizeof(ui) * (m >> 1));
-		memset(temp_edge_list, 0, sizeof(ui) * m);
-
-
-		//store graph
-
-		for (ui i = 0; i < n; i++)
-		{
-			temp_pstart[i] = pstart[i];
-			temp_pend[i] = pend[i];
-			for (ept j = pstart[i]; j < pend[i]; j++)
-			{
-				ui e = edgelist_pointer[j];
-				temp_edges[j] = edges[j];
-				temp_edgelist_pointer[j] = edgelist_pointer[j];
-				temp_edge_list[e << 1] = edge_list[e << 1];
-				temp_edge_list[(e << 1) + 1] = edge_list[(e << 1) + 1];
-				//printf("j = %d and %d-%d %d\n",j, i, edges[j], temp_edgelist_pointer[j]);
-			}
-		}
-
-		for (ui i = 0; i < (m >> 1); i++) temp_tri_cnt[i] = tri_cnt[i];
-
-
-		bool ans = false;
-
-		for (ui i = 0; i <= n - K; i++)
-		{
-			clock_t finish;
-			finish = clock();
-			double time = (double)(finish - start) / CLOCKS_PER_SEC;
-			if (time > 10000)
-			{
-				timeflag = false;
-				return -1;
-			}
-			printf("**********current minsize = %d\n", minsize);
-			//Preprocessing
-			if ((int)(n - K) < 0) break;
-			printf("n = %d, m = %d\n", n, m / 2);
-			ui S = i;
-
-			ui* active_edgelist = new ui[m >> 1];
-			ui active_edgelist_n = m >> 1;
-			for (ui i = 0; i < (m >> 1); i++) active_edgelist[i] = i;
-
-			bool* deleted = new bool[m >> 1];
-			memset(deleted, false, sizeof(bool) * (m >> 1));
-			bool* exists = new bool[n];
-			memset(exists, false, sizeof(bool) * n);
-
-			ui* degree = new ui[n];
-			for (ui i = 0; i < n; i++) degree[i] = pend[i] - pstart[i];
-
-			queue<ui> Qv;
-			queue<ept> Qe;
-
-			ui lb = S + K;
-			printf("S = %d and LB = %d\n", S, lb);
-			ui deleted_nodes = 0;
-
-			bool* inq = new bool[n];
-			memset(inq, false, sizeof(bool) * n);
-
-			//ept x = CTCP(inq, deleted_nodes, Qv, lb - S, Qe, lb - 1 - S, tri_cnt, active_edgelist, active_edgelist_n, edge_list, edgelist_pointer, deleted, degree, pstart, pend, edges, exists);
-			ept x = CTCP(inq, deleted_nodes, Qv, lb - S - 1, Qe, lb - S - 2, tri_cnt, active_edgelist, active_edgelist_n, edge_list, edgelist_pointer, deleted, degree, pstart, pend, edges, exists);//ֻҪ����lb�ͺ��ˣ�����Ҫ����
-
-			//ept x = CTCP(inq, deleted_nodes, Qv, lb - S - 1, Qe, lb - 2*S - 2, tri_cnt, active_edgelist, active_edgelist_n, edge_list, edgelist_pointer, deleted, degree, pstart, pend, edges, exists);//ֻҪ����lb�ͺ��ˣ�����Ҫ����
-
-			printf("deleted %lu edges\n", x);
-			printf("deleted %d nodes\n", deleted_nodes);
-			m -= 2 * x;
-			printf("After CTCP, n = %u, m = %lu\n\n", n - deleted_nodes, m / 2);
-
-
-
-
-			for (ui i = 0; i < n; i++) degree[i] = pend[i] - pstart[i];
-
-
-			if (S <= K - 1)
-			{
-
-				//Choose vertex. Find 2-hop neighbours. Branch and Bound.
-				ui* choosed = new ui[n];
-				memset(choosed, 0, sizeof(ui) * n);
-
-				for (int j = 0; j < n && m; j++) //&&ktruss_bar.size()<=UB
-				{
-					int min_key = n, min_id = -1;
-					for (int k = 0; k < n; k++)
-					{
-						if (degree[k] < min_key && !choosed[k])
-						{
-							min_key = degree[k];
-							min_id = k;
-						}
-					}
-					choosed[min_id] = 1;
-
-					if (min_key < lb - (S + 1))
-					{
-						if (degree[min_key] != 0)  
-						{
-							while (!Qv.empty()) Qv.pop();
-							while (!Qe.empty()) Qe.pop();
-							Qv.push(min_id);
-							deleted_nodes = 0;
-							m -= 2 * CTCP(inq, deleted_nodes, Qv, lb - S - 1, Qe, lb - S - 2, tri_cnt, active_edgelist, active_edgelist_n, edge_list, edgelist_pointer, deleted, degree, pstart, pend, edges, exists);
-							//m -= 2 * CTCP(inq, deleted_nodes, Qv, lb - S - 1, Qe, lb - 2*S - 2, tri_cnt, active_edgelist, active_edgelist_n, edge_list, edgelist_pointer, deleted, degree, pstart, pend, edges, exists);
-						}
-						continue;
-					}
-
-					if (m == 0) break;
-
-					assert(degree[min_id] == min_key);
-					ui* ids = new ui[n];
-					ui ids_n = 0;
-					ui* rid = new ui[n];
-					vector<pair<int, int> > vp; vp.reserve(m / 2);
-					ui* Q = new ui[n];
-					ui* t_degree = new ui[n];
-					memset(t_degree, 0, sizeof(ui) * n);
-					ui* exist = new ui[n];
-					memset(exist, 0, sizeof(ui) * n);
-
-					extract_subgraph_and_prune(lb, S + 1, min_id, ids, ids_n, rid, vp, Q, t_degree, exist, pend, deleted, edgelist_pointer);
-
-
-					if (ids_n != 0)
-						printf("\nids_n = %d\n", ids_n);
-
-					if (ids_n >= lb)
-					{
-				
-						bool ret;
-						BnBiterall* bnbiter = new BnBiterall(S, lb, start_from_zero);
-						bnbiter->load_graph(rid[min_id], ids_n, rid, vp, ids);
-
-						bnbiter->rearrange_graph();   ///��ԭ
-
-						int size = n * 2;
-						ret = bnbiter->bb_s_truss_bar(ids_n, size);
-						bnbiter->~BnBiterall();
-
-						if (ret)
-						{
-							printf("K = %d and Find a k_truss of size: %d\n", K, size);
-							ans = true;
-							if (size < minsize) minsize = size;
-						}
-					}
-
-					while (!Qv.empty()) Qv.pop();
-					while (!Qe.empty()) Qe.pop();
-					Qv.push(min_id);
-					deleted_nodes = 0;
-					m -= 2 * CTCP(inq, deleted_nodes, Qv, lb - S - 1, Qe, lb - S - 2, tri_cnt, active_edgelist, active_edgelist_n, edge_list, edgelist_pointer, deleted, degree, pstart, pend, edges, exists);
-					//m -= 2 * CTCP(inq, deleted_nodes, Qv, lb - S - 1, Qe, lb - 2*S - 2, tri_cnt, active_edgelist, active_edgelist_n, edge_list, edgelist_pointer, deleted, degree, pstart, pend, edges, exists);
-
-				}
-
-			}
-			else if (S > K - 1)
-			{
-				ui* ids = new ui[n];
-				ui ids_n = 0, rid_n = 0;
-				ui* rid = new ui[n];
-				vector<pair<int, int> > vp; vp.reserve(m / 2);
-				for (ui i = 0; i < n; i++)
-				{
-					if (degree[i] > 0)
-					{
-						ids[ids_n] = i;
-						rid[ids[ids_n]] = rid_n;
-						ids_n++;
-						rid_n++;
-					}
-				}
-
-				for (ui i = 0; i < n; i++)
-				{
-					if (degree[i] > 0)
-					{
-						for (ept j = pstart[i]; j < pend[i]; j++)
-						{
-							if (edges[j] > i && !deleted[edgelist_pointer[j]]) vp.push_back(mp(rid[i], rid[edges[j]]));
-						}
-					}
-				}
-
-				int size = 2 * n;
-				bool ret;
-				BnBG* bnbg = new BnBG(S, lb);
-				bnbg->load_graph(ids_n, rid, vp, ids);
-				bnbg->rearrange_graph();
-				ret = bnbg->bb_s_truss_bar_iterall(ids_n, start, timeflag, size);
-				bnbg->~BnBG();
-
-				if (ret)
-				{
-					printf("K = %d and Find a k_truss of size: %d\n", K, size);
-					ans = true;
-					if (size < minsize) minsize = size;
-				}
-			}
-
-
-			//Return to old graph
-
-			n = temp_n;
-			m = temp_m;
-
-
-			for (ui i = 0; i < n; i++)
-			{
-				pstart[i] = temp_pstart[i];
-				pend[i] = temp_pend[i];
-
-				for (ept j = temp_pstart[i]; j < temp_pend[i]; j++)
-				{
-					ui e = temp_edgelist_pointer[j];
-					edges[j] = temp_edges[j];
-					edgelist_pointer[j] = temp_edgelist_pointer[j];
-					//printf("j = %d and %d-%d %d\n", j, i, edges[j], e);
-					//printf("%d %d\n", edge_list[e << 1], temp_edge_list[e << 1]);
-					edge_list[e << 1] = temp_edge_list[e << 1];
-					edge_list[(e << 1) + 1] = temp_edge_list[(e << 1) + 1];
-				}
-			}
-
-
-			for (ui i = 0; i < (temp_m >> 1); i++)
-			{
-				tri_cnt[i] = temp_tri_cnt[i];
 				//edge_list[i << 1] = temp_edge_list[i << 1];
 				//edge_list[(i << 1) + 1] = temp_edge_list[(i << 1) + 1];
 			}
@@ -1896,290 +1862,9 @@ public:
 		{
 			printf("There is no %d-truss in the graph.\n", K);
 		}
-		return minsize;
+
 
 	}
-
-	int find_SCKT_k_truss_query(clock_t start, bool& timeflag, string method, int choosed_vertex, int s)
-	{
-		read_graph();
-		max_truss();
-
-		if (deleted_oldid[choosed_vertex])
-		{
-			printf("Query vertex has been deleted by the maximum ktruss\n");
-			return -1;
-		}
-
-		ofstream outfile;
-		outfile.open("/home/zhangqifan/min_k_truss/dataset/ktruss.txt");
-		for (int i = 0; i < (m >> 1); i++)
-		{
-			int u = edge_list[i << 1], v = edge_list[(i << 1) + 1];
-			if (start_from_zero)
-				outfile << old_old_id[u] << " " << old_old_id[v] << endl;
-			else
-				outfile << old_old_id[u] + 1 << " " << old_old_id[v] + 1 << endl;
-		}
-		outfile.close();
-
-
-		ui temp_n = n;
-		ept temp_m = m;
-
-		ept* temp_pstart = new ept[n];
-		ept* temp_pend = new ept[n];
-		ui* temp_edges = new ui[m];
-		ui* temp_edgelist_pointer = new ui[m];
-		ui* temp_tri_cnt = new ui[m >> 1];
-		ui* temp_edge_list = new ui[m];
-
-		memset(temp_pstart, 0, sizeof(ept) * n);
-		memset(temp_pstart, 0, sizeof(ept) * n);
-		memset(temp_edges, 0, sizeof(ui) * m);
-		memset(temp_edgelist_pointer, 0, sizeof(ui) * m);
-		memset(temp_tri_cnt, 0, sizeof(ui) * (m >> 1));
-		memset(temp_edge_list, 0, sizeof(ui) * m);
-
-
-		//store graph
-
-		for (ui i = 0; i < n; i++)
-		{
-			temp_pstart[i] = pstart[i];
-			temp_pend[i] = pend[i];
-			for (ept j = pstart[i]; j < pend[i]; j++)
-			{
-				ui e = edgelist_pointer[j];
-				temp_edges[j] = edges[j];
-				temp_edgelist_pointer[j] = edgelist_pointer[j];
-				temp_edge_list[e << 1] = edge_list[e << 1];
-				temp_edge_list[(e << 1) + 1] = edge_list[(e << 1) + 1];
-				//printf("j = %d and %d-%d %d\n",j, i, edges[j], temp_edgelist_pointer[j]);
-			}
-		}
-
-		for (ui i = 0; i < (m >> 1); i++) temp_tri_cnt[i] = tri_cnt[i];
-
-
-		bool ans = false;
-
-		for (ui i = s; i >= K && !ans; i--)
-		{
-
-			//Preprocessing
-			if ((int)(n - K) < 0) break;
-			printf("n = %d, m = %d\n", n, m / 2);
-			ui S = i - K;
-
-			ui* active_edgelist = new ui[m >> 1];
-			ui active_edgelist_n = m >> 1;
-			for (ui i = 0; i < (m >> 1); i++) active_edgelist[i] = i;
-
-			bool* deleted = new bool[m >> 1];
-			memset(deleted, false, sizeof(bool) * (m >> 1));
-			bool* exists = new bool[n];
-			memset(exists, false, sizeof(bool) * n);
-
-			ui* degree = new ui[n];
-			for (ui i = 0; i < n; i++) degree[i] = pend[i] - pstart[i];
-
-			queue<ui> Qv;
-			queue<ept> Qe;
-
-
-			ui lb = S + K;
-			printf("S = %d and LB = %d\n", S, lb);
-			ui deleted_nodes = 0;
-
-			bool* inq = new bool[n];
-			memset(inq, false, sizeof(bool) * n);
-
-			ept x = CTCP(inq, deleted_nodes, Qv, lb - S - 1, Qe, lb - S - 2, tri_cnt, active_edgelist, active_edgelist_n, edge_list, edgelist_pointer, deleted, degree, pstart, pend, edges, exists);
-		
-			printf("deleted %lu edges\n", x);
-			printf("deleted %d nodes\n", deleted_nodes);
-			m -= 2 * x;
-			printf("After CTCP, n = %u, m = %lu\n\n", n - deleted_nodes, m / 2);
-
-			for (ui i = 0; i < n; i++) degree[i] = pend[i] - pstart[i];
-
-
-	
-
-			if (method == "BNBGLOBAL")
-			{
-				ui* ids = new ui[n];
-				ui ids_n = 0, rid_n = 0;
-				ui* rid = new ui[n];
-				vector<pair<int, int> > vp; vp.reserve(m / 2);
-				for (ui i = 0; i < n; i++)
-				{
-					if (degree[i] > 0)
-					{
-						ids[ids_n] = i;
-						rid[ids[ids_n]] = rid_n;
-						ids_n++;
-						rid_n++;
-					}
-				}
-
-				for (ui i = 0; i < n; i++)
-				{
-					if (degree[i] > 0)
-					{
-						for (ept j = pstart[i]; j < pend[i]; j++)
-						{
-							if (edges[j] > i && !deleted[edgelist_pointer[j]]) vp.push_back(mp(rid[i], rid[edges[j]]));
-						}
-					}
-				}
-
-				bool ret;
-				BnBG* bnbg = new BnBG(S, lb);
-				bnbg->load_graph(ids_n, rid, vp, ids);
-				bnbg->rearrange_graph();
-				ret = bnbg->bb_s_truss_bar(ids_n, start, timeflag);
-				bnbg->~BnBG();
-
-				if (ret)
-				{
-					printf("K = %d and Find a min_k_truss of size: %d\n", K, S + K);
-					ans = true;
-					return S + K;
-				}
-				continue;
-			}
-			//Choose vertex. Find 2-hop neighbours. Branch and Bound.
-			ui* choosed = new ui[n];
-			memset(choosed, 0, sizeof(ui) * n);
-
-			int query_v;
-			for (int ii = 0; ii < n; ii++)
-			{
-				if (old_old_id[ii] == choosed_vertex)
-				{
-					query_v = ii;
-					break;
-				}
-			}
-
-			for (int j = 0; j < n && m; j++) //&&ktruss_bar.size()<=UB
-			{
-
-				int min_key = n, min_id = -1;
-				min_id = query_v;
-				min_key = degree[min_id];
-
-				if (m == 0) break;
-
-				assert(degree[min_id] == min_key);
-				ui* ids = new ui[n];
-				ui ids_n = 0;
-				ui* rid = new ui[n];
-				vector<pair<int, int> > vp; vp.reserve(m / 2);
-				ui* Q = new ui[n];
-				ui* t_degree = new ui[n];
-				memset(t_degree, 0, sizeof(ui) * n);
-				ui* exist = new ui[n];
-				memset(exist, 0, sizeof(ui) * n);
-
-				extract_subgraph_and_prune(lb, S + 1, min_id, ids, ids_n, rid, vp, Q, t_degree, exist, pend, deleted, edgelist_pointer);
-
-				if (ids_n != 0)
-					printf("\nids_n = %d\n", ids_n);
-
-
-				if (ids_n >= lb)
-				{
-					old_id = new ui[ids_n];
-					for (int i = 0; i < ids_n; i++)
-					{
-						old_id[rid[ids[i]]] = old_old_id[ids[i]];
-					}
-					
-					BnB1* bnb = new BnB1(S, lb);
-					bnb->load_graph(rid[min_id], ids_n, rid, vp, old_id);
-
-					bnb->rearrange_graph();   ///��ԭ
-
-					//ɾ
-					/*bnb->test();
-					exit(1);*/
-
-
-					bool ret = bnb->bb_s_truss_bar(ids_n, start, timeflag);
-					bnb->~BnB1();
-
-
-					//test!!!!!!!!!!!!!!�ǵ�ɾ
-					//ret = true;
-
-
-					if (ret)
-					{
-						printf("choose vertex = %d\n", choosed_vertex);
-						printf("K = %d and Find a min_k_truss of size: %d\n", K, S + K);
-						ans = true;
-						return S + K;
-						break;
-					}
-
-					if (!ret)
-					{
-						if (S == K - 1) return -1;
-						//printf("Cannot find query vertex based ans!\n");
-						break;
-						//return -1;
-					}
-
-				}
-
-			}
-
-
-
-			//Return to old graph
-
-			n = temp_n;
-			m = temp_m;
-
-
-			for (ui i = 0; i < n; i++)
-			{
-				pstart[i] = temp_pstart[i];
-				pend[i] = temp_pend[i];
-
-				for (ept j = temp_pstart[i]; j < temp_pend[i]; j++)
-				{
-					ui e = temp_edgelist_pointer[j];
-					edges[j] = temp_edges[j];
-					edgelist_pointer[j] = temp_edgelist_pointer[j];
-					//printf("j = %d and %d-%d %d\n", j, i, edges[j], e);
-					//printf("%d %d\n", edge_list[e << 1], temp_edge_list[e << 1]);
-					edge_list[e << 1] = temp_edge_list[e << 1];
-					edge_list[(e << 1) + 1] = temp_edge_list[(e << 1) + 1];
-				}
-			}
-
-
-			for (ui i = 0; i < (temp_m >> 1); i++)
-			{
-				tri_cnt[i] = temp_tri_cnt[i];
-				//edge_list[i << 1] = temp_edge_list[i << 1];
-				//edge_list[(i << 1) + 1] = temp_edge_list[(i << 1) + 1];
-			}
-
-
-		}
-
-		if (!ans)
-		{
-			printf("There is no %d-truss in the graph.\n", K);
-			return -1;
-		}
-	}
-
 
 	void extract_subgraph_and_prune(ui lb, ui K, ui u, ui* ids, ui& ids_n, ui* rid, vector<pair<int, int> >& vp, ui* Q, ui* degree, ui* exists, ept* pend, bool* deleted, ui* edgelist_pointer) {
 		vp.clear();
@@ -2221,7 +1906,7 @@ public:
 			}
 		}
 		assert(Q_n <= ids_n);
-		if (ids_n - Q_n + K - 1 < lb) { //����u,u���ھӣ������ٽ���k-1��u�ķ��ھ�
+		if (ids_n - Q_n + K - 1 < lb) { 
 			for (ui i = 0; i < ids_n; i++) exists[ids[i]] = 0;
 			ids_n = 0;
 			return;
@@ -2281,13 +1966,16 @@ public:
 		for (ui i = nr_size; i < ids_n; i++) assert(exists[ids[i]] == 3);
 #endif
 
+		//for(ui i = 0;i < ids_n;i ++) printf(" %u", ids[i]);
+		//printf("\n");
+
 		
 		for (ui i = 0; i < ids_n; i++) {
 			assert(exists[ids[i]]);
 			rid[ids[i]] = i;
 		}
 
-
+		//����һ���ھӺ�u�ı�
 		for (ui i = 0; i < nr_size; i++) {
 			u = ids[i];
 			for (ept j = pstart[u]; j < pend[u]; j++) if (exists[edges[j]] && edges[j] > u) {
@@ -2296,6 +1984,7 @@ public:
 			}
 		}
 
+		//��������ھӺ�һ���ھӵı�
 		for (ui i = nr_size; i < ids_n; i++) {
 			u = ids[i];
 			u_n = pstart[u];
@@ -2306,6 +1995,9 @@ public:
 			pend[u] = u_n;
 		}
 		for (ui i = 0; i < ids_n; i++) exists[ids[i]] = 0;
+		//#ifndef NDEBUG
+		//		for (ui i = 0; i < n; i++) assert(exists[i] == 0);
+		//#endif
 	}
 
 private:
@@ -2357,10 +2049,18 @@ private:
 		}
 
 #ifndef  NDEBUG
+
+		//for (ui i = 0; i < n; i++)
+		//{
+		//	for (ui u = pstart[i]; u < pend[i]; u++)
+		//		cout << tri_cnt[u] << endl;
+
+
+		//}
+
 		printf("Total number of triangles:%d\n", cnt);
 #endif // ! NDEBUG
 	}
-
 
 	void reorganize_oriented_graph(ui n, ui* tri_cnt, ui* edge_list, ept* pstart, ept* pend, ept* pend2, ui* edges, ui* edgelist_pointer)
 	{
@@ -2379,7 +2079,7 @@ private:
 				edge_list[pos++] = i, edge_list[pos++] = edges[j];
 
 				ept& k = pend2[edges[j]];
-				edgelist_pointer[j] = edgelist_pointer[k] = (pos >> 1) - 1; //edgelist_pointer��¼�ߵı��,j��k�Ǳߵĵ�ַ
+				edgelist_pointer[j] = edgelist_pointer[k] = (pos >> 1) - 1; 
 				edges[k++] = i;
 			}
 		}
@@ -2397,6 +2097,7 @@ private:
 			pend2[i] = pend[i];
 			pend[i] = pstart[i];
 		}
+
 
 		for (ui i = 0; i < n; i++)
 		{
@@ -2450,6 +2151,36 @@ private:
 		}
 
 	}
+
+
+	ui count_vertices(ui n, ept m, ui* edge_list, bool* visit)
+	{
+		vector<int> cnt;
+		ui* exist = new ui[n];
+		memset(exist, false, sizeof(ui) * n);
+		for (ept idx = 0; idx < m; idx++)
+		{
+			if (!visit[idx])
+			{
+				ui u = edge_list[idx << 1], v = edge_list[(idx << 1) + 1];
+				if (!exist[u])
+				{
+					exist[u] = true;
+					cnt.push_back(u);
+				}
+				if (!exist[v])
+				{
+					exist[v] = true;
+					cnt.push_back(v);
+				}
+			}
+		}
+		return cnt.size();
+	}
+
+
+
+
 };
 
 
