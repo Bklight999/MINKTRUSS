@@ -35,7 +35,7 @@ This will generate an executable file **minktruss**
 ## Run the code
 
 ```cpp
-./minktruss $alogirthm $input_file_path $output_file_path $k_lower $k_upper $query_id / the value of c (optional)
+./minktruss $alogirthm $input_file $output_file_path $k_lower $k_upper $query_id / the value of c (optional)
 ```
 Note that, the algorithms mentioned in our paper are transfered to a series of numbers:
 
@@ -49,13 +49,13 @@ Note that, the algorithms mentioned in our paper are transfered to a series of n
  if you want to run *MINKTRUSS-DSA* on *RGG* from *k=10 to k=15*, you can use the command:
 
 ```cpp
-./minktruss 0 path/to/RGG.txt path/to/your_output_file 10 15
+./minktruss 0 RGG path/to/your_output_file 10 15
 ```
 
  if you want to run *MINKTRUSS-DSA* on *Epinions* with *k=5* and *c= 100*, you can use the command:
 
 ```cpp
-./minktruss 1 path/to/Epinions.txt path/to/your_output_file 5 5 100
+./minktruss 1 Epinions path/to/your_output_file 5 5 100
 ```
 ## Long-term Preservation
 This repository is maintained by Qifan Zhang (bklight999@gmail.com).
