@@ -3,7 +3,6 @@ This repository contains the codebase for the following manuscript:
 ***Efficient Minimum k-Truss Search: A Decomposition-based Approach***
 
 ## Dataset Preparation
-The dataset dataset.zip can be unzipped directly.
 
 | **Dataset** | **$n$**   | **$m$**    | **$d_{avg}$** | **$k_{max}$** |
 |-------------|-----------|------------|---------------|---------------|
@@ -20,7 +19,7 @@ The dataset dataset.zip can be unzipped directly.
 
 
 
-Other datasets can be downloaded from the following links:
+All datasets can be downloaded from the following links:
 
  - **SNAP**: http://snap.stanford.edu
  - **Networkrepository**: https://networkrepository.com/
