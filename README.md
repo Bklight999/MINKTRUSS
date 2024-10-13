@@ -56,5 +56,4 @@ Note that, the algorithms mentioned in our paper are transfered to a series of n
 ```cpp
 ./minktruss 1 Epinions path/to/your_output_file 5 5 100
 ```
-## Long-term Preservation
-This repository is maintained by Qifan Zhang (bklight999@gmail.com).
+
