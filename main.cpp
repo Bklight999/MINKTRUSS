@@ -68,7 +68,7 @@ int main(int argc, char* argv[])
 
                 bool timeflag = true;
                 start = clock();
-                int cnt = graph->find_min_k_truss(start, timeflag, "IE_ENUM");//IE_ENUM
+                int cnt = graph->find_min_k_truss(start, timeflag, "BNB");
                 if (!timeflag) printf("Time exceeds!\n");
                 else
                 {
