@@ -1,4 +1,4 @@
-# MINKTRUSS
+# [TKDE 26] MINKTRUSS
 This repository contains the codebase for the following manuscript: 
 ***Efficient Minimum k-Truss Search: A Decomposition-based Approach***
 
